@@ -1,21 +1,12 @@
 import React, { useState } from 'react'
 import { useCallback,  useEffect } from 'react'
-import { useParams} from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 
 import { Formik } from 'formik'
 // material-ui
-import {InputLabel, Stack, Grid, Paper, Typography, LinearProgress, Box, IconButton, Button, OutlinedInput, FormControl, Select, Checkbox} from '@mui/material'
-import {red, blue} from '@mui/material/colors'
-import SearchIcon from '@mui/icons-material/Search';
-
-import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender, getPaginationRowModel } from '@tanstack/react-table'
-import Breadcrumbs from "../../components/@extended/Breadcrumbs"
-import { TablePagination, HeaderSort } from 'components/third-party/react-table' // HeaderSort
-import {
-  DebouncedInput
-} from 'components/third-party/react-table' // HeaderSort
+import {InputLabel, Stack, Grid, Typography, Box, Button, FormHelperText, OutlinedInput, FormControl, Select, Checkbox} from '@mui/material'
+import Alert from '@mui/material/Alert'
 
 import moment from 'moment'
 import BookProgressApi from 'api/BookProgressApi'
@@ -27,7 +18,6 @@ import { getSessionMemberApi } from 'api/AuthApi'
 import MainCard from 'components/MainCard'
 import ScrollX from 'components/ScrollX'
 import { MenuItem } from '../../../node_modules/@mui/material/index'
-import { check } from 'prettier'
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
@@ -37,22 +27,17 @@ const ProgressBook = () => {
   const [userId, setUserId] = useState(1)
   const [book, setBook] = React.useState("Select book")
   const [edited, setEdited] = useState("0")
-  const [data, setData] = useState([]);
-  const [user, setUser] = useState();
-  const [text, setText] = useState("")
-  const [checked, setChecked] = React.useState(false);
+  const [data, setData] = useState([])
+  const [user, setUser] = useState()
+  const [checked, setChecked] = React.useState(false)
 
   const handleCheck = (event) => {
-    setChecked(event.target.checked);
-    console.log(checked)
+    setChecked(event.target.checked)
   }
   const getBooks = useCallback(async () => {
     const curUser = await getSessionMemberApi()
     let newl = []
-    console.log(curUser.id)
-    let temp = curUser.id
-    setUserId(temp)
-    console.log(userId)
+    setUserId(curUser.id)
     try {
         const result = await BookApi.getAll()
         const result2 = await UserApi.getById(userId)
@@ -60,12 +45,10 @@ const ProgressBook = () => {
             _.forEach(result, book => {
                 if (book.userId == userId) {
                     newl.push(book)
-                    console.log(book)
                 }
             })
             setData(newl)
             setUser(result2)
-            console.log(data)
         }
     } catch (error) {
         console.log(error)
@@ -78,11 +61,9 @@ const ProgressBook = () => {
   const handleChange = (event) => {
     setBook(event.target.value)
     setEdited("yes")
-    console.log(book)
   }
   function DisplayBook(props) {
     if (edited != "yes") {
-        console.log("uwu")
         return 
     }
     return (
@@ -120,10 +101,9 @@ const ProgressBook = () => {
                             const data = {
                                 ...values
                             }
-                            console.log(user)
                             data.pagesRead = parseInt(data.pagesRead)
                             if (checked) {
-                                let temp = await BookApi.delete(props.book.id)
+                                await BookApi.delete(props.book.id)
                             }
                             const data2 = {
                                 username: user.username,
@@ -133,7 +113,6 @@ const ProgressBook = () => {
                                 avatarId: user.avatarId,
                                 parentId: user.parentId
                             }
-                            console.log(data2)
                             let response = await BookProgressApi.create(data)
                             let response2 = await UserApi.update(userId, data2)
                             if (response && response2 && response.status === 200) {
@@ -249,7 +228,7 @@ const ProgressBook = () => {
                 onChange={handleChange}
             >
             {data.map(book => (
-                <MenuItem value={book}>{book.title}</MenuItem>
+                <MenuItem key={book.id}value={book}>{book.title}</MenuItem>
             ))} 
             </Select>
             </FormControl>

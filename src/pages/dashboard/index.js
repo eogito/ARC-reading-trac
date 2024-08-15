@@ -2,10 +2,9 @@ import React, { useState } from 'react'
 
 import { useCallback } from 'react'
 import { useEffect } from 'react'
-import { useParams} from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 // material-ui
-import {InputLabel, Stack, Grid, Paper, Typography, LinearProgress, Box, IconButton, Button} from '@mui/material'
+import {Stack, Grid, Paper, Typography, LinearProgress, Box, IconButton, Button} from '@mui/material'
 import {red, blue} from '@mui/material/colors'
 
 // project import
@@ -13,60 +12,43 @@ import MainCard from 'components/MainCard'
 import ScrollX from 'components/ScrollX'
 import { SnackbarProvider } from 'notistack'
 import Breadcrumbs from "../../components/@extended/Breadcrumbs"
-import WhatshotIcon from '@mui/icons-material/Whatshot';
-import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
-import PostAddIcon from '@mui/icons-material/PostAdd';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark'
+import PostAddIcon from '@mui/icons-material/PostAdd'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { getSessionMemberApi } from 'api/AuthApi'
-import {
-  DebouncedInput
-} from 'components/third-party/react-table' // HeaderSort
 import Avatar from 'components/@extended/Avatar'
 import BookProgressApi from 'api/BookProgressApi'
 import BookApi from 'api/BookApi'
 import UserApi from 'api/UserApi'
-import AvatarApi from 'api/AvatarApi'
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 const DashboardDefault = () => {
-  let newl =[]
   const navigate = useNavigate()
   const [index, setIndex] = useState(0)
-  const [level, setLevel] = useState(1)
   const [user, setUser] = useState()
   const [data, setData] = useState([])
   const [books, setBooks] = useState([])
-  const [checked, setChecked] = React.useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleCheck = (event) => {
-    setChecked(event.target.checked);
-    console.log(checked)
-  }
   const getBooks = useCallback(async () => {
     const curUser = await getSessionMemberApi()
     let newl = []
     let neww = []
-    console.log(curUser.id)
     let temp = curUser.id
-    //setUserId(temp)
-    //console.log(userId)
     try {
         const result = await BookProgressApi.getAll()
         const result2 = await BookApi.getAll()
         const result3 = await UserApi.getById(temp)
-        console.log(result3)
         if (result && result2 && result3) {
           result3.level = Math.ceil(Math.pow(result3.xp,1.0/1.1)/30.0)
-          console.log(Math.pow(result3.xp,1.0/1.1)/30.0)
           setUser(result3)
             _.forEach(result2, book => {
                 if (book.userId == temp) {
                     book.pagesRead = 0
                     neww.push(book)
-                    console.log(book)
                 }
             })
             _.forEach(result, book => {
@@ -74,7 +56,6 @@ const DashboardDefault = () => {
                     let uwu = book.lastRead
                     book.lastRead = uwu.substring(0,10)
                     newl.push(book)
-                    console.log(book)
                     _.forEach(neww, booker => {
                       
                       if (book.Book != null && book.Book.id == booker.id) {
@@ -89,9 +70,6 @@ const DashboardDefault = () => {
             setData(newl)
             setBooks(neww)
             setLoading(true)
-            console.log(data)
-            console.log(neww)
-            console.log(neww.length)
         }
     } catch (error) {
         console.log(error)
@@ -202,7 +180,7 @@ const DashboardDefault = () => {
                           Progress Summary
                         </Typography>
                         {data.map(book => (
-                          <Box sx={{width:1, border:'2px solid gray', background: '#d1d1d1', padding:2}}>
+                          <Box key={book.id} sx={{width:1, border:'2px solid gray', background: '#d1d1d1', padding:2}}>
                             <Stack direction="row" justifyContent="space-between" alignItems="flex-begin">
                               <Typography variant="h4">
                                 {book.title}

@@ -1,22 +1,14 @@
 import React, { useState } from 'react'
 import { useCallback,  useEffect } from 'react'
-import { useParams} from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 // material-ui
-import {InputLabel, Stack, Grid, Paper, Typography, LinearProgress, Box, IconButton, Button, OutlinedInput} from '@mui/material'
-import {red, blue} from '@mui/material/colors'
-import SearchIcon from '@mui/icons-material/Search';
-
-import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender, getPaginationRowModel } from '@tanstack/react-table'
-import Breadcrumbs from "../../components/@extended/Breadcrumbs"
-import { TablePagination, HeaderSort } from 'components/third-party/react-table' // HeaderSort
+import {Stack, Typography, Box, Button} from '@mui/material'
 import {
   DebouncedInput
 } from 'components/third-party/react-table' // HeaderSort
 import BookApi from 'api/BookApi'
 import { getSessionMemberApi } from 'api/AuthApi'
-
 // project import
 import MainCard from 'components/MainCard'
 import ScrollX from 'components/ScrollX'
@@ -27,15 +19,10 @@ const AddBook = () => {
   
   const navigate = useNavigate()
   const [book, setBook] = useState(1)
-  const [edited, setEdited] = useState("0")
-  const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(false)
-  const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const [list, setList] = useState([])
   const searchBook = useCallback(async (title) => {
-    console.log(title)
     let newl=[]
     const curUser = await getSessionMemberApi()
-    setLoading(true);
     setList(newl)
     fetch("https://openlibrary.org/search.json?q=" + title)
     .then(response => response.json()) 
@@ -50,17 +37,14 @@ const AddBook = () => {
                 publishYear: data.docs[i].first_publish_year
             }
             if (book.pages == undefined) {
-              book.pages = 0;
+              book.pages = 0
             }
-            console.log(book)
             newl.push(book)
         }
-        setLoading(false)
     })
     .catch(error => {
         console.error("Error fetching data:", error)
     })
-    console.log(newl)
   }, [])
   useEffect(() => {
     searchBook(book)
@@ -68,11 +52,8 @@ const AddBook = () => {
 
   const handleSearch = (value) => {
     setBook(value)
-    setEdited(edited++)
-    console.log(edited)
   }
   const handleAddBook = (async(data) => {
-    console.log(data)
     data.coverUrl=data.coverUrl.toString()
 
     let response = await BookApi.create(data)
@@ -87,6 +68,11 @@ const AddBook = () => {
             navigate('/dashboard')
         }, 1000)
     } else {
+      enqueueSnackbar('Error', {
+        variant: 'error',
+        autoHideDuration: 3000,
+        anchorOrigin: {horizontal: 'right', vertical: 'top'}
+    })
     }
   })
 
@@ -113,7 +99,7 @@ const AddBook = () => {
           <Stack spacing={4}>
             
             {list.map(book => (
-              <Stack direction="row" alignItems="center" justifyContent="left">
+              <Stack key={book.id} direction="row" alignItems="center" justifyContent="left">
                 <Box
                   component="img"
                   src={"https://covers.openlibrary.org/b/id/"+book.coverUrl+"-M.jpg"}

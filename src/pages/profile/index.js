@@ -1,7 +1,6 @@
 import React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import { getSessionMemberApi } from '../../api/AuthApi'
-// import { useUserContext } from "../../context/UserContext"
 
 
 const Profile = () => {
